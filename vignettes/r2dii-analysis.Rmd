@@ -204,7 +204,7 @@ ggplot(
 
 From the SDA output, we can compare the projected average emission intensity attributed to the portfolio, with the actual emission intensity scenario, and the scenario compliant SDA pathway that the portfolio must follow to achieve the scenario ambition by 2050.
 
-```{r sda plot}
+```{r sda-plot}
 ggplot(
   data = sda_targets, 
   mapping = aes(
