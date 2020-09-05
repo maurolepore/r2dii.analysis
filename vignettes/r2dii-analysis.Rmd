@@ -68,37 +68,33 @@ market_share_targets_portfolio
 
 Or at the company level: 
 
-```{r share-company-define}
+```{r market-share-targets-company}
 market_share_targets_company <- matched %>%
   target_market_share(
     ald = ald,
     scenario = scenario,
     region_isos = regions,
     # Output results at company-level.
-    by_company = TRUE
+    by_company = TRUE 
   )
-```
 
-```{r share-company-result}
 
 market_share_targets_company
 ```
-
 
 ### Sectoral Decarbonization Approach
 
 The [Sectoral Decarbonization Approach](https://2degreesinvesting.github.io/r2dii.analysis/articles/target-market-share.html) is used to calculate scenario targets for the `emission_factor` of a sector. For example, you can use this approach to set targets for the average emission factor of the cement sector. This approach is recommended for sectors lacking technology roadmaps.
 
-```{r sda-targets-define}
+```{r sda-targets}
 # Use this dataset to practice but eventually you should use your own data.
 co2 <- r2dii.data::co2_intensity_scenario_demo
 
 sda_targets <- matched %>%
-  target_sda(ald = ald, co2_intensity_scenario = co2) %>%
+  target_sda(ald = ald, co2_intensity_scenario = co2) %>% 
   filter(sector == "cement", year >= 2020)
-```
 
-```{r sda-targets-result}
+
 sda_targets
 ```
 
@@ -121,10 +117,10 @@ tech_mix_data <- market_share_targets_portfolio %>%
 
 ```{r plot-metric-versus-weighted-capacity}
 ggplot(
-  data = tech_mix_data,
+  data = tech_mix_data, 
   mapping = aes(
-    x = metric,
-    y = technology_share,
+    x = metric, 
+    y = technology_share, 
     fill = technology
   )
 ) +
@@ -136,28 +132,20 @@ ggplot(
 
 You can also plot the technology-specific volume trend. All benchmarks must first be normalized to the initial portfolio value, so that we are effectively comparing ambition.
 
-```{r targets-and-ceiling-1}
-market_share_targets_portfolio <- market_share_targets_portfolio %>%
-  select(-technology_share) %>%
-  pivot_wider(
-    names_from = metric,
-    values_from = production
-  ) %>%
-  arrange(year) %>%
-  group_by(sector, technology, region, scenario_source) %>%
-  mutate(normalized_corporate_economy = corporate_economy * (first(projected) / first(corporate_economy))) %>%
-  select(-corporate_economy) %>%
-  pivot_longer(
-    names_to = "metric",
-    cols = projected:normalized_corporate_economy,
-    values_to = "production"
-  )
+```{r targets-and-ceiling}
+  market_share_targets_portfolio <- market_share_targets_portfolio %>% 
+  select(-technology_share) %>% 
+  pivot_wider(names_from = metric, 
+              values_from = production) %>% 
+  arrange(year) %>% 
+  group_by(sector, technology, region, scenario_source) %>% 
+  mutate(normalized_corporate_economy = corporate_economy * (first(projected)/first(corporate_economy))) %>% 
+  select(-corporate_economy) %>% 
+  pivot_longer(names_to = "metric",
+               cols = projected:normalized_corporate_economy,
+               values_to = "production")
 
 
-```
-
-
-```{r renewables-data}
 renewables_data <- filter(
   market_share_targets_portfolio,
   sector == "power",
@@ -166,18 +154,10 @@ renewables_data <- filter(
 )
 
 
-```
-
-
-```{r just-targets}
 just_targets <- renewables_data %>%
   filter(str_detect(metric, "target_"))
 
 
-```
-
-
-```{r ceiling}
 ceiling <- just_targets %>%
   group_by(sector, technology, year, region, scenario_source) %>%
   summarize(
@@ -187,17 +167,11 @@ ceiling <- just_targets %>%
   group_by(sector, technology, region, scenario_source) %>%
   mutate(production = max(production))
 
-
-```
-
-```{r just-data}
+  
 just_data <- renewables_data %>%
   filter(!str_detect(metric, "target_"))
 
 
-```
-
-```{r targets-and-ceiling}
 targets_and_ceiling <- just_targets %>%
   bind_rows(ceiling) %>%
   group_by(year) %>%
@@ -206,6 +180,7 @@ targets_and_ceiling <- just_targets %>%
     previous_value = lag(production, default = 0)
   ) %>%
   filter(region == "global")
+
 
 ```
 
@@ -223,10 +198,10 @@ ggplot(
     mapping = aes(ymin = previous_value, ymax = production)
   ) +
   geom_line(
-    data = just_data,
+    data = just_data, 
     mapping = aes(
-      x = year,
-      y = production,
+      x = year, 
+      y = production, 
       linetype = metric
     )
   ) +
@@ -242,15 +217,12 @@ From the SDA output, we can compare the projected average emission intensity att
 
 ```{r sda-plot}
 ggplot(
-  data = sda_targets,
+  data = sda_targets, 
   mapping = aes(
-    x = year,
-    y = emission_factor_value,
-    color = emission_factor_metric
-  )
+    x = year, 
+    y = emission_factor_value, 
+    color = emission_factor_metric)
 ) +
   geom_line() +
-  facet_wrap(~sector)
-
-
+  facet_wrap(~ sector)
 ```
