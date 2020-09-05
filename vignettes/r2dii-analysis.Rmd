@@ -78,7 +78,6 @@ market_share_targets_company <- matched %>%
     by_company = TRUE 
   )
 
-
 market_share_targets_company
 ```
 
@@ -93,7 +92,6 @@ co2 <- r2dii.data::co2_intensity_scenario_demo
 sda_targets <- matched %>%
   target_sda(ald = ald, co2_intensity_scenario = co2) %>% 
   filter(sector == "cement", year >= 2020)
-
 
 sda_targets
 ```
@@ -145,7 +143,6 @@ You can also plot the technology-specific volume trend. All benchmarks must firs
                cols = projected:normalized_corporate_economy,
                values_to = "production")
 
-
 renewables_data <- filter(
   market_share_targets_portfolio,
   sector == "power",
@@ -153,10 +150,8 @@ renewables_data <- filter(
   region == "global"
 )
 
-
 just_targets <- renewables_data %>%
   filter(str_detect(metric, "target_"))
-
 
 ceiling <- just_targets %>%
   group_by(sector, technology, year, region, scenario_source) %>%
@@ -167,21 +162,17 @@ ceiling <- just_targets %>%
   group_by(sector, technology, region, scenario_source) %>%
   mutate(production = max(production))
 
-  
 just_data <- renewables_data %>%
   filter(!str_detect(metric, "target_"))
-
 
 targets_and_ceiling <- just_targets %>%
   bind_rows(ceiling) %>%
   group_by(year) %>%
   arrange(year, production) %>%
   mutate(
-    previous_value = lag(production, default = 0)
+    previous_value = lag(production, default = 0),
   ) %>%
   filter(region == "global")
-
-
 ```
 
 ```{r plot-year-versus-weithed-production-value}
@@ -206,8 +197,6 @@ ggplot(
     )
   ) +
   facet_wrap(vars(sector, technology))
-
-
 ```
 
 
